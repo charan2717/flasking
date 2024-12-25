@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #input-form {
+            display: flex;
+        }
+        #input-form input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px 0 0 5px;
+        }
+        #input-form button {
+            padding: 10px;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <form id="input-form">
+            <input type="text" id="message-input" placeholder="Type your message..." required />
+            <button type="submit">Send</button>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('input-form');
+        const messages = document.getElementById('messages');
+        const input = document.getElementById('message-input');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userMessage = input.value;
+
+            // Display user message
+            const userDiv = document.createElement('div');
+            userDiv.textContent = `You: ${userMessage}`;
+            messages.appendChild(userDiv);
+
+            // Fetch response from backend
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage }),
+                });
+                const data = await response.json();
+                const botDiv = document.createElement('div');
+                botDiv.textContent = `Bot: ${data.response}`;
+                messages.appendChild(botDiv);
+            } catch (error) {
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = `Error: Unable to fetch response`;
+                messages.appendChild(errorDiv);
+            }
+
+            input.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        });
+    </script>
+</body>
+</html>
